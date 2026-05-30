@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>工作交接 · 協助看板</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Noto+Sans+TC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f3;
+    --bg-elev: #ffffff;
+    --bg-soft: #f3efe6;
+    --ink: #1a1815;
+    --ink-soft: #5c554a;
+    --ink-mute: #8a8275;
+    --line: #e8e1d3;
+    --line-soft: #f0ead9;
+    --accent: #c8553d;
+    --accent-soft: #f4dcd3;
+    --gold: #b8893a;
+    --gold-soft: #f3e6c8;
+    --green: #4a7c59;
+    --green-soft: #d9e7dd;
+    --blue: #3d5a80;
+    --blue-soft: #d4dde8;
+    --grape: #6b4e71;
+    --grape-soft: #e1d6e4;
+    --shadow-sm: 0 1px 2px rgba(26,24,21,0.04), 0 0 0 1px rgba(26,24,21,0.04);
+    --shadow-lg: 0 20px 50px rgba(26,24,21,0.12), 0 8px 16px rgba(26,24,21,0.06);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Noto Sans TC', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(200,85,61,0.06), transparent 45%),
+      radial-gradient(circle at 88% 92%, rgba(184,137,58,0.06), transparent 45%);
+    min-height: 100vh;
+  }
+  .container { max-width: 1280px; margin: 0 auto; padding: 48px 32px 80px; }
+
+  header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 28px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .brand .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .brand .eyebrow::before {
+    content: "";
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .brand h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(34px, 5vw, 52px);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    font-variation-settings: 'opsz' 96;
+  }
+  .brand h1 em { font-style: italic; font-weight: 400; color: var(--accent); }
+  .brand p { color: var(--ink-soft); margin-top: 10px; font-size: 15px; max-width: 480px; }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+
+  .btn {
+    font-family: inherit; font-size: 13.5px; font-weight: 500;
+    padding: 10px 16px; border-radius: var(--radius-sm);
+    border: 1px solid var(--line); background: var(--bg-elev); color: var(--ink);
+    cursor: pointer; transition: all 0.15s ease;
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--ink-mute); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+  .btn-primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+
+  .lock-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: var(--radius-sm);
+    border: 1px solid var(--line); background: var(--bg-elev);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    letter-spacing: 0.04em; color: var(--ink-soft);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .lock-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .lock-btn.unlocked {
+    background: var(--green-soft); color: var(--green); border-color: var(--green);
+  }
+  .lock-btn .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ink-mute);
+  }
+  .lock-btn.unlocked .dot { background: var(--green); }
+
+  .connection {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 99px;
+    font-size: 10.5px; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em; color: var(--ink-mute);
+    background: var(--bg-soft);
+  }
+  .connection .dot-c { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-mute); }
+  .connection.live { color: var(--green); background: var(--green-soft); }
+  .connection.live .dot-c {
+    background: var(--green);
+    animation: ripple 2s infinite;
+  }
+  .connection.error { color: var(--accent); background: var(--accent-soft); }
+  .connection.error .dot-c { background: var(--accent); }
+  @keyframes ripple {
+    0% { box-shadow: 0 0 0 0 rgba(74,124,89,0.5); }
+    100% { box-shadow: 0 0 0 6px rgba(74,124,89,0); }
+  }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px; margin-bottom: 32px;
+  }
+  .stat {
+    background: var(--bg-elev); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px 20px;
+    position: relative; overflow: hidden;
+  }
+  .stat::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--accent);
+  }
+  .stat:nth-child(2)::before { background: var(--gold); }
+  .stat:nth-child(3)::before { background: var(--blue); }
+  .stat:nth-child(4)::before { background: var(--green); }
+  .stat .label {
+    font-size: 12px; color: var(--ink-mute); margin-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em;
+  }
+  .stat .num {
+    font-family: 'Fraunces', serif; font-size: 32px; font-weight: 500;
+    line-height: 1; font-variation-settings: 'opsz' 96;
+  }
+
+  .toolbar {
+    display: flex; gap: 8px; margin-bottom: 16px;
+    flex-wrap: wrap; align-items: center;
+  }
+  .search { flex: 1; min-width: 220px; position: relative; }
+  .search input {
+    width: 100%; padding: 10px 14px 10px 38px;
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    background: var(--bg-elev); font-family: inherit; font-size: 14px;
+    color: var(--ink); transition: border-color 0.15s;
+  }
+  .search input:focus { outline: none; border-color: var(--accent); }
+  .search::before {
+    content: "⌕"; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%); color: var(--ink-mute);
+    font-size: 16px; pointer-events: none;
+  }
+  .filter {
+    padding: 10px 14px; border: 1px solid var(--line);
+    border-radius: var(--radius-sm); background: var(--bg-elev);
+    font-family: inherit; font-size: 14px; color: var(--ink); cursor: pointer;
+  }
+  .filter:focus { outline: none; border-color: var(--accent); }
+
+  .table-wrap {
+    background: var(--bg-elev); border: 1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm);
+  }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead { background: var(--bg-soft); }
+  th {
+    text-align: left; padding: 12px 14px; font-weight: 500;
+    color: var(--ink-soft); font-size: 12.5px; letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--line); white-space: nowrap;
+    user-select: none; cursor: pointer; transition: color 0.15s;
+  }
+  th:hover { color: var(--ink); }
+  th .sort-arrow { opacity: 0; font-size: 10px; margin-left: 4px; color: var(--accent); }
+  th.sorted .sort-arrow { opacity: 1; }
+  tbody tr { border-bottom: 1px solid var(--line-soft); transition: background 0.12s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg-soft); }
+  td { padding: 12px 14px; vertical-align: top; color: var(--ink); }
+
+  .task-title { font-weight: 500; color: var(--ink); min-width: 180px; }
+  .task-desc { color: var(--ink-soft); font-size: 13px; margin-top: 3px; line-height: 1.45; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 99px;
+    font-size: 12px; font-weight: 500; white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+  body.editor .pill.editable { cursor: pointer; }
+  body.editor .pill.editable:hover { opacity: 0.75; }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+
+  .status-todo { background: var(--bg-soft); color: var(--ink-soft); }
+  .status-todo::before { background: var(--ink-mute); }
+  .status-progress { background: var(--gold-soft); color: #7a5a1f; }
+  .status-progress::before { background: var(--gold); }
+  .status-help { background: var(--accent-soft); color: var(--accent); }
+  .status-help::before { background: var(--accent); }
+  .status-review { background: var(--blue-soft); color: var(--blue); }
+  .status-review::before { background: var(--blue); }
+  .status-done { background: var(--green-soft); color: var(--green); }
+  .status-done::before { background: var(--green); }
+
+  .pri-high { background: var(--accent-soft); color: var(--accent); }
+  .pri-high::before { background: var(--accent); }
+  .pri-medium { background: var(--gold-soft); color: #7a5a1f; }
+  .pri-medium::before { background: var(--gold); }
+  .pri-low { background: var(--green-soft); color: var(--green); }
+  .pri-low::before { background: var(--green); }
+
+  .person { display: inline-flex; align-items: center; gap: 6px; }
+  .avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--accent));
+    color: white; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; flex-shrink: 0;
+  }
+  .avatar.handoff { background: linear-gradient(135deg, var(--blue), var(--grape)); }
+
+  .date-cell {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: var(--ink-soft); white-space: nowrap;
+  }
+  .date-cell.overdue { color: var(--accent); font-weight: 600; }
+
+  .row-actions { display: none; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+  body.editor .row-actions { display: flex; }
+  tbody tr:hover .row-actions { opacity: 1; }
+  .row-actions button {
+    background: transparent; border: 1px solid transparent;
+    width: 28px; height: 28px; border-radius: var(--radius-sm);
+    cursor: pointer; color: var(--ink-mute); font-size: 14px;
+    transition: all 0.15s;
+  }
+  .row-actions button:hover {
+    background: var(--bg-elev); border-color: var(--line); color: var(--ink);
+  }
+  .row-actions button.del:hover {
+    color: var(--accent); border-color: var(--accent); background: var(--accent-soft);
+  }
+
+  body:not(.editor) .editor-only { display: none !important; }
+
+  .empty, .loading { padding: 80px 24px; text-align: center; color: var(--ink-mute); }
+  .empty .glyph {
+    font-family: 'Fraunces', serif; font-size: 80px; font-style: italic;
+    color: var(--line); line-height: 1; margin-bottom: 16px;
+  }
+  .empty h3 {
+    font-family: 'Fraunces', serif; font-size: 22px; font-weight: 500;
+    color: var(--ink); margin-bottom: 6px;
+  }
+  .empty p { font-size: 14px; }
+
+  .spinner {
+    display: inline-block; width: 28px; height: 28px;
+    border: 2px solid var(--line); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(26,24,21,0.45); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100; padding: 24px;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-bg.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .modal {
+    background: var(--bg-elev); border-radius: var(--radius);
+    width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto;
+    box-shadow: var(--shadow-lg); animation: slideUp 0.25s ease;
+  }
+  .modal-head { padding: 24px 28px 0; margin-bottom: 8px; }
+  .modal-head h2 {
+    font-family: 'Fraunces', serif; font-size: 26px; font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .modal-head h2 em { font-style: italic; color: var(--accent); }
+  .modal-head p { color: var(--ink-soft); font-size: 13.5px; margin-top: 4px; }
+  .modal-body { padding: 20px 28px 28px; }
+  .field { margin-top: 16px; }
+  .field label {
+    display: block; font-size: 12px; color: var(--ink-soft); margin-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .field input, .field textarea, .field select {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    background: var(--bg); font-family: inherit; font-size: 14px;
+    color: var(--ink); transition: border-color 0.15s;
+  }
+  .field textarea { min-height: 70px; resize: vertical; font-family: inherit; }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    outline: none; border-color: var(--accent);
+  }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+  .modal-error {
+    background: var(--accent-soft); color: var(--accent);
+    padding: 10px 14px; border-radius: var(--radius-sm);
+    font-size: 13px; margin-top: 12px; display: none;
+  }
+  .modal-error.show { display: block; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--bg);
+    padding: 12px 20px; border-radius: var(--radius-sm);
+    font-size: 13.5px; box-shadow: var(--shadow-lg);
+    opacity: 0; transition: all 0.3s ease;
+    pointer-events: none; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  footer {
+    margin-top: 32px; padding-top: 20px;
+    border-top: 1px solid var(--line); text-align: center;
+    color: var(--ink-mute); font-size: 12.5px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 720px) {
+    .container { padding: 32px 16px 60px; }
+    .brand h1 { font-size: 36px; }
+    th, td { padding: 10px 12px; }
+    .modal { max-width: 100%; }
+    .field-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="brand">
+      <div class="eyebrow">
+        Handover · Assistance · Board
+        <span class="connection" id="conn"><span class="dot-c"></span>Connecting…</span>
+      </div>
+      <h1>工作交接<br/><em>協助看板</em></h1>
+      <p>動態管理每一筆工作交接與協助請求 — 即時同步,任何裝置都能看,只有授權者能編輯。</p>
+    </div>
+    <div class="header-actions">
+      <button class="lock-btn" id="lockBtn" onclick="toggleLock()">
+        <span class="dot"></span>
+        <span id="lockText">🔒 唯讀模式</span>
+      </button>
+      <button class="btn btn-primary editor-only" onclick="openModal()">+ 新增任務</button>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar">
+    <div class="search">
+      <input type="text" id="searchInput" placeholder="搜尋任務、人員或描述…" oninput="render()">
+    </div>
+    <select class="filter" id="filterStatus" onchange="render()">
+      <option value="">全部狀態</option>
+      <option value="todo">待處理</option>
+      <option value="progress">進行中</option>
+      <option value="help">需協助</option>
+      <option value="review">審核中</option>
+      <option value="done">已完成</option>
+    </select>
+    <select class="filter" id="filterPriority" onchange="render()">
+      <option value="">全部優先級</option>
+      <option value="high">高</option>
+      <option value="medium">中</option>
+      <option value="low">低</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table id="taskTable">
+        <thead>
+          <tr>
+            <th onclick="sortBy('title')">任務 <span class="sort-arrow">▼</span></th>
+            <th onclick="sortBy('handoffFrom')">交接人 <span class="sort-arrow">▼</span></th>
+            <th onclick="sortBy('handoffTo')">接手人 <span class="sort-arrow">▼</span></th>
+            <th onclick="sortBy('status')">狀態 <span class="sort-arrow">▼</span></th>
+            <th onclick="sortBy('priority')">優先級 <span class="sort-arrow">▼</span></th>
+            <th onclick="sortBy('dueDate')">截止日 <span class="sort-arrow">▼</span></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="7"><div class="loading">
+            <div class="spinner"></div>
+            <p>正在連線 Firebase…</p>
+          </div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    Powered by Firebase Firestore · 即時同步 · 公開唯讀,密碼解鎖編輯
+  </footer>
+</div>
+
+<!-- Task Add/Edit Modal -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <h2><em id="modalTitle">新增</em>任務</h2>
+      <p>清楚的交接,是專業最美的姿態。</p>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>任務名稱 *</label>
+        <input type="text" id="f_title" placeholder="例如:客戶 Q4 季報數據整理">
+      </div>
+      <div class="field">
+        <label>任務描述</label>
+        <textarea id="f_desc" placeholder="補充背景、文件連結、注意事項…"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>交接人 (From)</label>
+          <input type="text" id="f_from" placeholder="王小明">
+        </div>
+        <div class="field">
+          <label>接手人 (To)</label>
+          <input type="text" id="f_to" placeholder="陳大華">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>狀態</label>
+          <select id="f_status">
+            <option value="todo">待處理</option>
+            <option value="progress">進行中</option>
+            <option value="help">需協助</option>
+            <option value="review">審核中</option>
+            <option value="done">已完成</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>優先級</label>
+          <select id="f_priority">
+            <option value="medium">中</option>
+            <option value="high">高</option>
+            <option value="low">低</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>截止日期</label>
+        <input type="date" id="f_due">
+      </div>
+      <div class="modal-foot">
+        <button class="btn" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveTask()">儲存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Unlock Modal -->
+<div class="modal-bg" id="unlockBg" onclick="if(event.target===this)closeUnlock()">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head">
+      <h2>🔓 <em>解鎖</em>編輯模式</h2>
+      <p>請輸入密碼以啟用編輯功能。密碼會記住到關閉分頁為止。</p>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>編輯密碼</label>
+        <input type="password" id="f_password" placeholder="輸入密碼" onkeydown="if(event.key==='Enter')tryUnlock()">
+      </div>
+      <div class="modal-error" id="unlockError">密碼錯誤,請再試一次</div>
+      <div class="modal-foot">
+        <button class="btn" onclick="closeUnlock()">取消</button>
+        <button class="btn btn-primary" onclick="tryUnlock()">解鎖</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  // ════════════════════════════════════════════════════════════
+  //  Firebase Configuration
+  // ════════════════════════════════════════════════════════════
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc,
+    onSnapshot, query, orderBy, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAVvJuOTXv5h7Anah2beNQOM4DM8i_6EcE",
+    authDomain: "admin-shk.firebaseapp.com",
+    projectId: "admin-shk",
+    storageBucket: "admin-shk.firebasestorage.app",
+    messagingSenderId: "957499661634",
+    appId: "1:957499661634:web:16e531970971f66dba3cdb"
+  };
+
+  // ╔════════════════════════════════════════════════════════════╗
+  // ║  👇 重要:把這裡的密碼改成你自己的                              ║
+  // ║  必須跟 Firestore Security Rules 設定的完全一樣                ║
+  // ║  例如:"team2026shk"、"shk-handover-2026"                    ║
+  // ╚════════════════════════════════════════════════════════════╝
+  const EDIT_KEY = "YOUR_PASSWORD_HERE";
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const tasksRef = collection(db, "tasks");
+
+  // ════════════════════════════════════════════════════════════
+  //  State
+  // ════════════════════════════════════════════════════════════
+  const STATUS_LABELS = {
+    todo: '待處理', progress: '進行中', help: '需協助',
+    review: '審核中', done: '已完成'
+  };
+  const PRIORITY_LABELS = { high: '高', medium: '中', low: '低' };
+
+  let tasks = [];
+  let editingId = null;
+  let sortField = 'dueDate';
+  let sortDir = 'asc';
+  let isUnlocked = sessionStorage.getItem('handover_unlocked') === '1';
+  let hasLoaded = false;
+
+  // ════════════════════════════════════════════════════════════
+  //  Firestore: real-time listener
+  // ════════════════════════════════════════════════════════════
+  const conn = document.getElementById('conn');
+  function setConn(state, label) {
+    conn.className = 'connection ' + state;
+    conn.innerHTML = `<span class="dot-c"></span>${label}`;
+  }
+
+  onSnapshot(query(tasksRef, orderBy('createdAt', 'desc')),
+    (snap) => {
+      tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      hasLoaded = true;
+      setConn('live', 'Live · 即時同步');
+      render();
+    },
+    (err) => {
+      console.error('Firestore error:', err);
+      setConn('error', '連線失敗');
+      document.getElementById('tbody').innerHTML = `<tr><td colspan="7"><div class="empty">
+        <div class="glyph">!</div>
+        <h3>無法連接 Firebase</h3>
+        <p>請檢查 Firestore 是否已啟用,並確認安全規則設定正確。<br>詳細錯誤已輸出到瀏覽器 Console (F12)。</p>
+      </div></td></tr>`;
+    }
+  );
+
+  // ════════════════════════════════════════════════════════════
+  //  Lock / Unlock
+  // ════════════════════════════════════════════════════════════
+  function applyLockState() {
+    document.body.classList.toggle('editor', isUnlocked);
+    const btn = document.getElementById('lockBtn');
+    const txt = document.getElementById('lockText');
+    if (isUnlocked) {
+      btn.classList.add('unlocked');
+      txt.textContent = '🔓 編輯模式';
+    } else {
+      btn.classList.remove('unlocked');
+      txt.textContent = '🔒 唯讀模式';
+    }
+  }
+  applyLockState();
+
+  window.toggleLock = function() {
+    if (isUnlocked) {
+      if (confirm('要鎖回唯讀模式嗎?')) {
+        isUnlocked = false;
+        sessionStorage.removeItem('handover_unlocked');
+        applyLockState();
+        toast('已鎖定');
+      }
+    } else {
+      document.getElementById('unlockError').classList.remove('show');
+      document.getElementById('f_password').value = '';
+      document.getElementById('unlockBg').classList.add('open');
+      setTimeout(() => document.getElementById('f_password').focus(), 100);
+    }
+  };
+  window.closeUnlock = function() {
+    document.getElementById('unlockBg').classList.remove('open');
+  };
+  window.tryUnlock = function() {
+    const pwd = document.getElementById('f_password').value;
+    if (pwd === EDIT_KEY) {
+      isUnlocked = true;
+      sessionStorage.setItem('handover_unlocked', '1');
+      applyLockState();
+      closeUnlock();
+      toast('已解鎖編輯模式');
+      render();
+    } else {
+      document.getElementById('unlockError').classList.add('show');
+    }
+  };
+
+  // ════════════════════════════════════════════════════════════
+  //  Render
+  // ════════════════════════════════════════════════════════════
+  window.render = function() {
+    if (!hasLoaded) return;
+
+    const search = document.getElementById('searchInput').value.toLowerCase().trim();
+    const statusFilter = document.getElementById('filterStatus').value;
+    const priorityFilter = document.getElementById('filterPriority').value;
+
+    let filtered = tasks.filter(t => {
+      const matchSearch = !search ||
+        (t.title || '').toLowerCase().includes(search) ||
+        (t.desc || '').toLowerCase().includes(search) ||
+        (t.handoffFrom || '').toLowerCase().includes(search) ||
+        (t.handoffTo || '').toLowerCase().includes(search);
+      const matchStatus = !statusFilter || t.status === statusFilter;
+      const matchPriority = !priorityFilter || t.priority === priorityFilter;
+      return matchSearch && matchStatus && matchPriority;
+    });
+
+    const priOrder = { high: 0, medium: 1, low: 2 };
+    const statOrder = { help: 0, progress: 1, review: 2, todo: 3, done: 4 };
+    filtered.sort((a, b) => {
+      let av = a[sortField], bv = b[sortField];
+      if (sortField === 'priority') { av = priOrder[av]; bv = priOrder[bv]; }
+      else if (sortField === 'status') { av = statOrder[av]; bv = statOrder[bv]; }
+      av = av || ''; bv = bv || '';
+      if (av < bv) return sortDir === 'asc' ? -1 : 1;
+      if (av > bv) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    const tbody = document.getElementById('tbody');
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty">
+        <div class="glyph">∅</div>
+        <h3>${tasks.length === 0 ? '還沒有任務' : '沒有符合的任務'}</h3>
+        <p>${tasks.length === 0 && isUnlocked ? '點擊右上角「+ 新增任務」開始建立' : tasks.length === 0 ? '解鎖編輯模式即可新增任務' : '試試清除篩選條件'}</p>
+      </div></td></tr>`;
+    } else {
+      tbody.innerHTML = filtered.map(t => rowHTML(t)).join('');
+    }
+
+    document.querySelectorAll('th').forEach(th => th.classList.remove('sorted'));
+    const ths = document.querySelectorAll('thead th');
+    const fields = ['title','handoffFrom','handoffTo','status','priority','dueDate'];
+    const idx = fields.indexOf(sortField);
+    if (idx >= 0 && ths[idx]) {
+      ths[idx].classList.add('sorted');
+      ths[idx].querySelector('.sort-arrow').textContent = sortDir === 'asc' ? '▲' : '▼';
+    }
+
+    renderStats();
+  };
+
+  function rowHTML(t) {
+    const isOverdue = t.dueDate && t.status !== 'done' && new Date(t.dueDate) < new Date(new Date().toDateString());
+    const dueDisplay = t.dueDate ? formatDate(t.dueDate) : '—';
+    const cycle = isUnlocked ? 'editable' : '';
+    return `
+      <tr>
+        <td class="task-title">
+          <div>${esc(t.title)}</div>
+          ${t.desc ? `<div class="task-desc">${esc(t.desc)}</div>` : ''}
+        </td>
+        <td>${t.handoffFrom ? `<span class="person"><span class="avatar">${initial(t.handoffFrom)}</span>${esc(t.handoffFrom)}</span>` : '<span style="color:var(--ink-mute)">—</span>'}</td>
+        <td>${t.handoffTo ? `<span class="person"><span class="avatar handoff">${initial(t.handoffTo)}</span>${esc(t.handoffTo)}</span>` : '<span style="color:var(--ink-mute)">—</span>'}</td>
+        <td><span class="pill ${cycle} status-${t.status}" ${isUnlocked ? `onclick="cycleStatus('${t.id}')"` : ''}>${STATUS_LABELS[t.status] || t.status}</span></td>
+        <td><span class="pill ${cycle} pri-${t.priority}" ${isUnlocked ? `onclick="cyclePriority('${t.id}')"` : ''}>${PRIORITY_LABELS[t.priority] || t.priority}</span></td>
+        <td><span class="date-cell ${isOverdue ? 'overdue' : ''}">${dueDisplay}</span></td>
+        <td>
+          <div class="row-actions">
+            <button onclick="openModal('${t.id}')" title="編輯">✎</button>
+            <button class="del" onclick="deleteTask('${t.id}')" title="刪除">✕</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function renderStats() {
+    const counts = { total: tasks.length, progress: 0, help: 0, done: 0 };
+    tasks.forEach(t => {
+      if (t.status === 'progress') counts.progress++;
+      if (t.status === 'help') counts.help++;
+      if (t.status === 'done') counts.done++;
+    });
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="label">TOTAL TASKS</div><div class="num">${counts.total}</div></div>
+      <div class="stat"><div class="label">IN PROGRESS</div><div class="num">${counts.progress}</div></div>
+      <div class="stat"><div class="label">NEEDS HELP</div><div class="num">${counts.help}</div></div>
+      <div class="stat"><div class="label">COMPLETED</div><div class="num">${counts.done}</div></div>
+    `;
+  }
+
+  function formatDate(s) {
+    const d = new Date(s);
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function initial(name) {
+    return (name || '').trim().slice(0, 1).toUpperCase();
+  }
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+
+  window.sortBy = function(field) {
+    if (sortField === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    else { sortField = field; sortDir = 'asc'; }
+    render();
+  };
+
+  window.cycleStatus = async function(id) {
+    if (!isUnlocked) return;
+    const order = ['todo','progress','help','review','done'];
+    const t = tasks.find(x => x.id === id);
+    if (!t) return;
+    const i = order.indexOf(t.status);
+    const next = order[(i + 1) % order.length];
+    try {
+      await updateDoc(doc(db, 'tasks', id), {
+        status: next,
+        _editKey: EDIT_KEY,
+        updatedAt: serverTimestamp()
+      });
+    } catch (e) { toast('更新失敗,請檢查密碼設定'); console.error(e); }
+  };
+  window.cyclePriority = async function(id) {
+    if (!isUnlocked) return;
+    const order = ['low','medium','high'];
+    const t = tasks.find(x => x.id === id);
+    if (!t) return;
+    const i = order.indexOf(t.priority);
+    const next = order[(i + 1) % order.length];
+    try {
+      await updateDoc(doc(db, 'tasks', id), {
+        priority: next,
+        _editKey: EDIT_KEY,
+        updatedAt: serverTimestamp()
+      });
+    } catch (e) { toast('更新失敗,請檢查密碼設定'); console.error(e); }
+  };
+
+  window.openModal = function(id) {
+    if (!isUnlocked) { window.toggleLock(); return; }
+    editingId = id || null;
+    document.getElementById('modalTitle').textContent = id ? '編輯' : '新增';
+    if (id) {
+      const t = tasks.find(x => x.id === id);
+      document.getElementById('f_title').value = t.title || '';
+      document.getElementById('f_desc').value = t.desc || '';
+      document.getElementById('f_from').value = t.handoffFrom || '';
+      document.getElementById('f_to').value = t.handoffTo || '';
+      document.getElementById('f_status').value = t.status || 'todo';
+      document.getElementById('f_priority').value = t.priority || 'medium';
+      document.getElementById('f_due').value = t.dueDate || '';
+    } else {
+      ['f_title','f_desc','f_from','f_to','f_due'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f_status').value = 'todo';
+      document.getElementById('f_priority').value = 'medium';
+    }
+    document.getElementById('modalBg').classList.add('open');
+    setTimeout(() => document.getElementById('f_title').focus(), 100);
+  };
+  window.closeModal = function() {
+    document.getElementById('modalBg').classList.remove('open');
+    editingId = null;
+  };
+  window.saveTask = async function() {
+    const title = document.getElementById('f_title').value.trim();
+    if (!title) { toast('請輸入任務名稱'); return; }
+    const payload = {
+      title,
+      desc: document.getElementById('f_desc').value.trim(),
+      handoffFrom: document.getElementById('f_from').value.trim(),
+      handoffTo: document.getElementById('f_to').value.trim(),
+      status: document.getElementById('f_status').value,
+      priority: document.getElementById('f_priority').value,
+      dueDate: document.getElementById('f_due').value,
+      _editKey: EDIT_KEY,
+      updatedAt: serverTimestamp()
+    };
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, 'tasks', editingId), payload);
+        toast('已更新');
+      } else {
+        payload.createdAt = serverTimestamp();
+        await addDoc(tasksRef, payload);
+        toast('已新增任務');
+      }
+      closeModal();
+    } catch (e) {
+      console.error(e);
+      toast('儲存失敗:密碼可能不正確或網路問題');
+    }
+  };
+  window.deleteTask = async function(id) {
+    if (!isUnlocked) return;
+    if (!confirm('確定刪除這筆任務?')) return;
+    try {
+      await deleteDoc(doc(db, 'tasks', id));
+      toast('已刪除');
+    } catch (e) {
+      console.error(e);
+      toast('刪除失敗,請檢查密碼設定');
+    }
+  };
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { window.closeModal(); window.closeUnlock(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('searchInput').focus();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n' && isUnlocked) {
+      e.preventDefault();
+      window.openModal();
+    }
+  });
+</script>
+</body>
+</html>
